@@ -11,16 +11,15 @@ public sealed class RabbitMQBus : IEventBus
     #endregion
 
     #region Ctor
-    public RabbitMQBus(IMediator mediator,
-                       Dictionary<string, List<Type>> handlers,
-                       List<Type> eventTypes)
+    public RabbitMQBus(IMediator mediator)
     {
         _mediator = mediator;
-        _handlers = handlers;
-        _eventTypes = eventTypes;
+        _handlers = new Dictionary<string, List<Type>>();
+        _eventTypes = new List<Type>();
     }
     #endregion
 
+    #region Basic
     public Task SendCommand<T>(T command) where T : Command
     {
         return _mediator.Send(command);
@@ -67,6 +66,8 @@ public sealed class RabbitMQBus : IEventBus
         StartBasicConsume<T>(); // start the basic consume
 
     }
+    #endregion
+
     private void StartBasicConsume<T>() where T : Event
     {
         var factory = new ConnectionFactory() { HostName = "localhost" }; // create a connection factory
