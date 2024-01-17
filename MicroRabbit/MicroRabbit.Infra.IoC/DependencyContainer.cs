@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using MicroRabbit.Banking.Domain.Commands.Transfer;
+using MicroRabbit.Banking.Domain.CommandHandlers.Transfer;
 using MicroRabbit.Domain.Core.Bus;
 using MicroRabbit.Infra.Bus;
 using System.Reflection;
@@ -12,6 +14,9 @@ public class DependencyContainer
     {
         // Domain Bus
         services.AddTransient<IEventBus, RabbitMQBus>();
+
+        // Domain Banking Commands
+        services.AddTransient<IRequestHandler<CreateTransferCommand, bool>, CreateTransferCommandHandler>();
 
         // Application Services
         services.AddTransient<IAccountService, AccountService>();

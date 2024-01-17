@@ -36,7 +36,7 @@ public sealed class RabbitMQBus : IEventBus
         var body = Encoding.UTF8.GetBytes(message); // convert the event to bytes
         channel.BasicPublish("", eventName, null, body); // publish the event
 
-    }
+     }
 
     public void Subscribe<T, TH>()
         where T : Event
