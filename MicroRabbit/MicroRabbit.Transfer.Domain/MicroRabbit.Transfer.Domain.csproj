@@ -9,10 +9,11 @@
   <ItemGroup>
     <Folder Include="CommandHandlers\" />
     <Folder Include="Commands\" />
-    <Folder Include="EventHandlers\" />
-    <Folder Include="Events\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Models\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MicroRabbit.Banking.Domain\MicroRabbit.Banking.Domain.csproj" />
+    <ProjectReference Include="..\MicroRabbit.Domain.Core\MicroRabbit.Domain.Core.csproj" />
   </ItemGroup>
 
 </Project>

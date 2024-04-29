@@ -1,5 +1,6 @@
 ﻿
 using MicroRabbit.Banking.Application.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MicroRabbit.Banking.Api.Controllers;
 

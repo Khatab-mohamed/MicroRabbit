@@ -1,4 +1,8 @@
-﻿namespace MicroRabbit.Banking.Api;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+
+namespace MicroRabbit.Banking.Api;
 
 
 public class Startup
@@ -11,21 +15,52 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        var connection = Configuration.GetConnectionString("BankingDbConnection");
         // Db Context
+
+
         services.AddDbContext<BankingDbContext>(options =>
-        options.UseSqlServer(Configuration.GetConnectionString("BankingDbConnection")));
+            options.UseSqlServer(connection, options =>
+            {
+                options.EnableRetryOnFailure();
+                options.CommandTimeout(600);
+            }));
 
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
-        RegisterServices(services);
+        RegisterServices(services, Configuration);
 
         var assembly = Assembly.GetExecutingAssembly();
 
-       // Add MediatR
+        // Add MediatR
         services.AddMediatR(assembly);
+        //services.
 
+        // Add Authenticaion
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+            {
+                options.Authority = "https://localhost:5005";
+                options.ClientId = "microRabbitApiClient";
+                options.ClientSecret = "";
+                options.ResponseType = "code";
+                options.Scope.Add("openid");
+                options.Scope.Add("profile");
+                options.SaveTokens = true;
+                options.GetClaimsFromUserInfoEndpoint = true;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.Authority = "https://localhost:5001";
+                options.Audience = "microRabbitApi";
+            });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -40,6 +75,7 @@ public class Startup
 
         app.UseHttpsRedirection();
         app.UseRouting();
+        app.UseAuthentication();
         app.UseAuthorization();
         app.UseCors("CorsPolicy");
 
@@ -49,8 +85,8 @@ public class Startup
         });
     }
 
-    private static void RegisterServices(IServiceCollection services)
+    private static void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
-        DependencyContainer.RegisterServices(services);
+        DependencyContainer.RegisterServices(services, configuration);
     }
 }

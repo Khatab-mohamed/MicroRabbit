@@ -41,30 +41,24 @@ public sealed class RabbitMQBus : IEventBus
     public void Subscribe<T, TH>()
         where T : Event
         where TH : IEventHandler<T>
-    {
+     {
         var eventName = typeof(T).Name; // get the name of the event
         var handlerType = typeof(TH); // get the type of the event handler
-
-        var containsKey = _handlers.ContainsKey(eventName); // check if the event is already registered
-        if (!containsKey)
+        if (!_eventTypes.Contains(typeof(T))) 
         {
-            _handlers.Add(eventName, new List<Type>()); // add the event to the list of events
-        }
-        var handler = _handlers[eventName];// get the event handler for the event
-        var contains = handler.Any(s => s.GetType() == handlerType); // check if the event handler is already registered
-        if (!contains)
+            _eventTypes.Add(typeof(T));
+        } // add the event type to the list of event types
+        if(!_handlers.ContainsKey(eventName))
         {
-            handler.Add(handlerType); // add the event handler to the list of event handlers
-        }
-        else
+            _handlers.Add(eventName, new List<Type>());
+        } // add the event to the list of event handlers
+        if (_handlers[eventName].Any(s => s.GetType() == handlerType))
         {
-            throw new ArgumentException($"Handler Type {handlerType.Name} already is registered for '{eventName}'",
-                                        nameof(handlerType)); // throw an exception if the event handler is already registered
-        }
-        _handlers[eventName] = handler; // add the event handler to the list of event handlers
+            throw new ArgumentException($"Handler Type {handlerType.Name} already is registered for '{eventName}'", nameof(handlerType));
+        } // check if the event handler is already registered
 
-        StartBasicConsume<T>(); // start the basic consume
-
+        _handlers[eventName].Add(handlerType); // add the event handler to the list of event handlers
+        StartBasicConsume<T>();
     }
     #endregion
 

@@ -1,4 +1,6 @@
-﻿namespace MicroRabbit.Banking.Domain.CommandHandlers.Transfer;
+﻿using MicroRabbit.Banking.Domain.Events;
+
+namespace MicroRabbit.Banking.Domain.CommandHandlers.Transfer;
 
 
 
